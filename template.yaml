@@ -1,14 +1,16 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: angular-app-template
-  title: Angular App Template
+  name: angular-app-template-github
+  title: Angular App Template for GitHub
   description: Create a new CRA website project
   tags:
+    - recommended
     - angular
-    - nagesh
+    - github
+    - rhdh-adventure
 spec:
-  owner: narathod@redhat.com
+  owner: rmarting@redhat.com
   type: website
   parameters:
     - title: Provide some simple information
@@ -29,10 +31,11 @@ spec:
           title: Owner
           type: string
           description: Owner of the component
-          ui:field: OwnerPicker
-          ui:options:
-            allowedKinds:
-              - Group
+          ui:field: EntityNamePicker
+          #ui:field: OwnerPicker
+          #ui:options:
+          #  allowedKinds:
+          #    - Group
     - title: Choose a location
       required:
         - repoUrl
@@ -40,10 +43,12 @@ spec:
         repoUrl:
           title: Repository Location
           type: string
+          description: Base url of the GitLab server (not include protocol such as https:// or ssh://)
           ui:field: RepoUrlPicker
           ui:options:
             allowedHosts:
               - github.com
+
   steps:
     - id: template
       name: Fetch Skeleton + Template
@@ -53,15 +58,11 @@ spec:
         copyWithoutRender:
           - .github/workflows/*
         values:
+          name: ${{ parameters.component_id }}
           component_id: ${{ parameters.component_id }}
           description:  ${{ parameters.description }}
-          destination: ${{ parameters.repoUrl | parseRepoUrl }}
+          repo_url: ${{ parameters.repoUrl }}?owner=${{ parameters.owner }}&repo=${{ parameters.component_id }}
           owner: ${{ parameters.owner }}
-          # cluster: {{ cluster_subdomain }}
-          host: ${{ parameters.repo.host }}
-          destination_own: ${{ parameters.repo.owner }}
-                              
-
     - id: publish
       name: Publish
       action: publish:github
@@ -70,7 +71,8 @@ spec:
           - github.com
         description: This is ${{ parameters.component_id }}
         repoUrl: ${{ parameters.repoUrl }}
-
+        repoVisibility: public
+        defaultBranch: main
     - id: register
       name: Register
       action: catalog:register
