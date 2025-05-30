@@ -6,6 +6,7 @@ metadata:
   description: ${{ values.description | dump }}
   {%- endif %}
   annotations:
+    github.com/project-slug: ${{ values.owner }}/${{ values.component_id }}
     backstage.io/techdocs-ref: dir:.
   links:
     - url: https://workspaces.openshift.com/#https://${{ values.repo_url }}
